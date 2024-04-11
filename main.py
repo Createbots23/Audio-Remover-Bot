@@ -3,6 +3,7 @@ import ffmpeg
 import os
 
 # Create a Pyrogram Client
+# Create a Pyrogram Client
 api_id = "10471716"
 api_hash = "f8a1b21a13af154596e2ff5bed164860"
 bot_token = "6999401413:AAHgF1ZpUsCT5MgWX1Wky7GbegyeHvzi2AU"
@@ -12,7 +13,12 @@ app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
 # Function to remove audio from video
 def remove_audio(input_file, output_file):
-    ffmpeg.input(input_file).output(output_file, **{'c:v': 'copy', 'an': None}).run(overwrite_output=True)
+    (
+        ffmpeg
+        .input(input_file)
+        .output(output_file, **{'c:v': 'copy', 'an': None})
+        .run(overwrite_output=True)
+    )
 
 # Function to send status message
 def send_status_message(message, text):
