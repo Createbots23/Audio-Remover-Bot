@@ -5,7 +5,6 @@ API_ID = '10471716'
 API_HASH = 'f8a1b21a13af154596e2ff5bed164860'
 BOT_TOKEN = '6999401413:AAHgF1ZpUsCT5MgWX1Wky7GbegyeHvzi2AU'
 
-
 app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 def is_video_document(message):
@@ -18,7 +17,7 @@ def is_video_document(message):
 def start(_, update):
     update.reply_text("Hello! Send me a video file or document and I'll remove the audio and send it back to you.")
 
-@app.on_message(filters.video | filters.document & filters.create(is_video_document))
+@app.on_message(filters.video | (filters.document & filters.create(is_video_document)))
 def remove_audio(_, update):
     try:
         file_id = update.message.video.file_id if update.message.video else update.message.document.file_id
