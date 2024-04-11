@@ -14,13 +14,14 @@ def start(_, update):
 @app.on_message(filters.video)
 def remove_audio(_, update):
     try:
-        file_path = app.download_media(update.message.video.file_id)
+        file_path = app.download_media(update.video.file_id)
         output_file = f"{file_path}_no_audio.mp4"
-        subprocess.run(["avconv", "-i", file_path, "-c", "copy", "-an", output_file], check=True)
+        subprocess.run(["ffmpeg", "-i", file_path, "-c", "copy", "-an", output_file], check=True)
         update.reply_video(output_file)
     except Exception as e:
         print(f"An error occurred: {e}")
         update.reply_text("Sorry, something went wrong while processing the video.")
+
 
 @app.on_message(filters.command(["help", "error"]))
 def help_command(_, update):
