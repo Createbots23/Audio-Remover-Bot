@@ -7,7 +7,7 @@ BOT_TOKEN = '6999401413:AAHgF1ZpUsCT5MgWX1Wky7GbegyeHvzi2AU'
 
 app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
-def is_video_document(client, message, update):
+def is_video_document(client, message):
     if message.document:
         mime_type = message.document.mime_type
         return mime_type.startswith('video/')
