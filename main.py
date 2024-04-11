@@ -7,6 +7,7 @@ api_id = "10471716"
 api_hash = "f8a1b21a13af154596e2ff5bed164860"
 bot_token = "6999401413:AAHgF1ZpUsCT5MgWX1Wky7GbegyeHvzi2AU"
 
+
 app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
 # Function to remove audio from video
@@ -28,13 +29,9 @@ def remove_audio_handler(client, message):
         output_file = "output_" + os.path.basename(video_file)
 
         try:
-            # Check if the file type is supported
-            if video_file.endswith((".mp4", ".avi", ".mov", ".wmv", ".flv", ".webm")):
-                remove_audio(video_file, output_file)
-                message.reply_document(document=output_file)
-                os.remove(output_file)
-            else:
-                message.reply_text("Sorry, I can only remove audio from MP4, AVI, MOV, WMV, FLV, and WEBM video formats.")
+            remove_audio(video_file, output_file)
+            message.reply_video(video=output_file)
+            os.remove(output_file)
         except Exception as e:
             print("Error:", e)
             message.reply_text("An error occurred while processing the video.")
