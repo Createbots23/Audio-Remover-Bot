@@ -1,36 +1,42 @@
 from pyrogram import Client, filters
-import subprocess
+from pyrogram.types import Message
+from moviepy.editor import VideoFileClip
 
-API_ID = '10471716'
-API_HASH = 'f8a1b21a13af154596e2ff5bed164860'
-BOT_TOKEN = '6999401413:AAHgF1ZpUsCT5MgWX1Wky7GbegyeHvzi2AU'
+# Initialize Pyrogram client
+api_id = 10471716
+api_hash = 'f8a1b21a13af154596e2ff5bed164860'
+bot_token = '6999401413:AAHgF1ZpUsCT5MgWX1Wky7GbegyeHvzi2AU'
 
-app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
-def is_video_document(client, message):
-    if message.document:
-        mime_type = message.document.mime_type
-        return mime_type.startswith('video/')
-    return False
+# Function to remove audio from video file
+def remove_audio(video_path):
+    video = VideoFileClip(video_path)
+    video_without_audio = video.without_audio()
+    video_without_audio_path = "video_without_audio.mp4"
+    video_without_audio.write_videofile(video_without_audio_path, codec="libx264", audio_codec="aac")
+    video.close()
+    return video_without_audio_path
 
-@app.on_message(filters.command('start'))
-def start(_, update):
-    update.reply_text("Hello! Send me a video file or document and I'll remove the audio and send it back to you.")
+# Start command handler
+@app.on_message(filters.command("start"))
+def start_command(client, message):
+    message.reply_text("Welcome to the bot! Send me a video file or document and I will remove the audio for you.")
 
-@app.on_message(filters.video | (filters.document & filters.create(is_video_document)))
-def remove_audio(_, update):
-    try:
-        file_id = update.message.video.file_id if update.message.video else update.message.document.file_id
-        file_path = app.download_media(file_id)
-        output_file = f"{file_path}_no_audio.mp4"
-        subprocess.run(["avconv", "-i", file_path, "-c", "copy", "-an", output_file], check=True)
-        update.reply_video(output_file)
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        update.reply_text("Sorry, something went wrong while processing the video.")
+# Error handler
+@app.on_message(filters.private)
+def echo(client, message):
+    message.reply_text("Oops! Something went wrong. Please send a video file or document.")
 
-@app.on_message(filters.command(["help", "error"]))
-def help_command(_, update):
-    update.reply_text("I'm just a simple bot that removes audio from videos. Send me a video file or document and I'll take care of the rest.")
+# Main handler
+@app.on_message(filters.private & filters.video)
+def process_video(client, message):
+    video_file = message.video.download()
+    video_without_audio_path = remove_audio(video_file)
+    message.reply_video(video_without_audio_path)
+    # Clean up files
+    os.remove(video_file)
+    os.remove(video_without_audio_path)
 
+# Run the bot
 app.run()
