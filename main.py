@@ -1,55 +1,29 @@
 from pyrogram import Client, filters
-import ffmpeg
-import os
+import subprocess
 
-# Create a Pyrogram Client
-# Create a Pyrogram Client
-api_id = "10471716"
-api_hash = "f8a1b21a13af154596e2ff5bed164860"
-bot_token = "6999401413:AAHgF1ZpUsCT5MgWX1Wky7GbegyeHvzi2AU"
+API_ID = 10471716'
+API_HASH = 'f8a1b21a13af154596e2ff5bed164860'
+BOT_TOKEN = '6999401413:AAHgF1ZpUsCT5MgWX1Wky7GbegyeHvzi2AU'
 
+app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
-app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
+@app.on_message(filters.command('start'))
+def start(_, update):
+    update.reply_text("Hello! Send me a video file and I'll remove the audio and send it back to you.")
 
-# Function to remove audio from video
-def remove_audio(input_file, output_file):
-    (
-        ffmpeg
-        .input(input_file)
-        .output(output_file, **{'c:v': 'copy', 'an': None})
-        .run(overwrite_output=True)
-    )
-
-# Function to send status message
-def send_status_message(message, text):
-    message.reply_text(text)
-
-# Start command handler
-@app.on_message(filters.command("start"))
-def start(client, message):
-    message.reply_text("Hello! Send me any video file, and I'll remove the audio.")
-
-# Process all video files
 @app.on_message(filters.video)
-def process_video(client, message):
-    # Notify user that processing has started
-    send_status_message(message, "Processing started. Please wait...")
-
-    video_file_id = message.video.file_id
-    video_file = client.download_media(video_file_id)
-    output_file = "output_" + os.path.basename(video_file)
-
+def remove_audio(_, update):
     try:
-        remove_audio(video_file, output_file)
-        # Send the processed video back to the user
-        message.reply_video(video=output_file)
-        # Notify user that processing is complete
-        send_status_message(message, "Processing completed.")
-        # Delete the temporary output file
-        os.remove(output_file)
+        file_path = app.download_media(update.message.video.file_id)
+        output_file = f"{file_path}_no_audio.mp4"
+        subprocess.run(["avconv", "-i", file_path, "-c", "copy", "-an", output_file], check=True)
+        update.reply_video(output_file)
     except Exception as e:
-        print("Error:", e)
-        send_status_message(message, "An error occurred while processing the video.")
+        print(f"An error occurred: {e}")
+        update.reply_text("Sorry, something went wrong while processing the video.")
 
-# Run the bot
+@app.on_message(filters.command(["help", "error"]))
+def help_command(_, update):
+    update.reply_text("I'm just a simple bot that removes audio from videos. Send me a video file and I'll take care of the rest.")
+
 app.run()
