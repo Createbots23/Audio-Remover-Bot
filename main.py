@@ -1,3 +1,4 @@
+import os
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from moviepy.editor import VideoFileClip
@@ -23,11 +24,15 @@ def remove_audio(video_path):
 def start_command(client, message):
     message.reply_text("Welcome to the bot! Send me a video file or document and I will remove the audio for you.")
 
+# Error handler
+@app.on_message(filters.private)
+def echo(client, message):
+    message.reply_text("Oops! Something went wrong. Please send a video file or document.")
 
 # Main handler
 @app.on_message(filters.private & filters.video)
 def process_video(client, message):
-    video_file = message.video.download()
+    video_file = message.download_media(file_name="video.mp4")
     video_without_audio_path = remove_audio(video_file)
     message.reply_video(video_without_audio_path)
     # Clean up files
