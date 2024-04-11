@@ -1,7 +1,7 @@
 from pyrogram import Client, filters
 import subprocess
 
-API_ID = 10471716'
+API_ID = '10471716'
 API_HASH = 'f8a1b21a13af154596e2ff5bed164860'
 BOT_TOKEN = '6999401413:AAHgF1ZpUsCT5MgWX1Wky7GbegyeHvzi2AU'
 
