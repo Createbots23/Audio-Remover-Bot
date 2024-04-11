@@ -22,21 +22,24 @@ def start(client, message):
 @app.on_message(filters.command("remove"))
 def remove_audio_handler(client, message):
     if message.reply_to_message and message.reply_to_message.video:
-        video_message = message.reply_to_message
-        video_file_id = video_message.video.file_id
+        video_message = message.reply_to_message.video
+        video_file_id = video_message.file_id
         video_file = client.download_media(video_file_id)
         output_file = "output_" + os.path.basename(video_file)
 
         try:
-            remove_audio(video_file, output_file)
-            message.reply_document(document=output_file)
-            os.remove(output_file)
+            # Check if the file type is supported
+            if video_file.endswith((".mp4", ".avi", ".mov", ".wmv", ".flv", ".webm")):
+                remove_audio(video_file, output_file)
+                message.reply_document(document=output_file)
+                os.remove(output_file)
+            else:
+                message.reply_text("Sorry, I can only remove audio from MP4, AVI, MOV, WMV, FLV, and WEBM video formats.")
         except Exception as e:
             print("Error:", e)
             message.reply_text("An error occurred while processing the video.")
     else:
         message.reply_text("Please reply to a video message with '/remove' to remove the audio.")
 
-# 
 # Run the bot
 app.run()
