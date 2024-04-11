@@ -37,10 +37,6 @@ def remove_audio_handler(client, message):
     else:
         message.reply_text("Please reply to a video message with '/remove' to remove the audio.")
 
-# Error handler
-@app.on_error()
-def error_handler(client, message):
-    print("Error:", message)
-
+# 
 # Run the bot
 app.run()
