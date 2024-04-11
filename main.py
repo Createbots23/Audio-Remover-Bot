@@ -14,29 +14,36 @@ app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 def remove_audio(input_file, output_file):
     ffmpeg.input(input_file).output(output_file, **{'c:v': 'copy', 'an': None}).run(overwrite_output=True)
 
+# Function to send status message
+def send_status_message(message, text):
+    message.reply_text(text)
+
 # Start command handler
 @app.on_message(filters.command("start"))
 def start(client, message):
-    message.reply_text("Hello! Send me a video and reply '/remove' to remove the audio.")
+    message.reply_text("Hello! Send me any video file, and I'll remove the audio.")
 
-# Remove command handler
-@app.on_message(filters.command("remove"))
-def remove_audio_handler(client, message):
-    if message.reply_to_message and message.reply_to_message.video:
-        video_message = message.reply_to_message.video
-        video_file_id = video_message.file_id
-        video_file = client.download_media(video_file_id)
-        output_file = "output_" + os.path.basename(video_file)
+# Process all video files
+@app.on_message(filters.video)
+def process_video(client, message):
+    # Notify user that processing has started
+    send_status_message(message, "Processing started. Please wait...")
 
-        try:
-            remove_audio(video_file, output_file)
-            message.reply_video(video=output_file)
-            os.remove(output_file)
-        except Exception as e:
-            print("Error:", e)
-            message.reply_text("An error occurred while processing the video.")
-    else:
-        message.reply_text("Please reply to a video message with '/remove' to remove the audio.")
+    video_file_id = message.video.file_id
+    video_file = client.download_media(video_file_id)
+    output_file = "output_" + os.path.basename(video_file)
+
+    try:
+        remove_audio(video_file, output_file)
+        # Send the processed video back to the user
+        message.reply_video(video=output_file)
+        # Notify user that processing is complete
+        send_status_message(message, "Processing completed.")
+        # Delete the temporary output file
+        os.remove(output_file)
+    except Exception as e:
+        print("Error:", e)
+        send_status_message(message, "An error occurred while processing the video.")
 
 # Run the bot
 app.run()
