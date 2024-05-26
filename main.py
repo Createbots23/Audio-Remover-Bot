@@ -4,9 +4,9 @@ from pyrogram.types import Message
 from moviepy.editor import VideoFileClip
 
 # Initialize Pyrogram client
-api_id = 10471716
-api_hash = 'f8a1b21a13af154596e2ff5bed164860'
-bot_token = '6999401413:AAHgF1ZpUsCT5MgWX1Wky7GbegyeHvzi2AU'
+api_id = 21740783
+api_hash = 'a5dc7fec8302615f5b441ec5e238cd46'
+bot_token = ''
 
 app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
